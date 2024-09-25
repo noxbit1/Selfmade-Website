@@ -1,0 +1,76 @@
+document.addEventListener('DOMContentLoaded', function () {
+    // Hide loading screen on page load
+    window.addEventListener('load', function () {
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.style.opacity = 0;
+        setTimeout(() => loadingScreen.style.display = 'none', 1000);
+    });
+
+    // Smooth scrolling for anchor links
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Track the last clicked square and set a timeout for double-click
+    let lastClickedSquare = null;
+    let clickTimeout = null;
+    const DOUBLE_CLICK_DELAY = 300; // Delay in milliseconds
+
+    document.querySelectorAll('.square').forEach(square => {
+        square.addEventListener('click', function () {
+            if (window.innerWidth <= 768) { // Mobile
+                if (lastClickedSquare === this) {
+                    // Double-click detected
+                    navigateToPage(this.id);
+                } else {
+                    // Single click detected, set the last clicked square and start timeout
+                    lastClickedSquare = this;
+                    clickTimeout = setTimeout(() => {
+                        lastClickedSquare = null;
+                        clearTimeout(clickTimeout);
+                    }, DOUBLE_CLICK_DELAY);
+                }
+            } else { // Desktop
+                showLoadingEffect(this);
+            }
+        });
+    });
+
+    function navigateToPage(squareId) {
+        const pageMap = {
+            square1: 'page1.html',
+            square2: 'page2.html',
+            square3: 'page3.html',
+            square4: 'page4.html'
+        };
+
+        const page = pageMap[squareId];
+        if (page) {
+            window.location.href = page;
+        }
+    }
+
+    function showLoadingEffect(square) {
+        // Add a class to start the dimming and loading effect
+        square.classList.add('loading');
+        // Wait for the animation to complete before navigating
+        setTimeout(() => {
+            navigateToPage(square.id);
+        }, 1000); // Match this duration with the CSS animation time
+    }
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function () {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('hidden');
+        });
+    }
+});
